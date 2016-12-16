@@ -1,81 +1,75 @@
-import pygame
-import sys
+import pygame, sys
 from pygame.locals import *
+from paddle import Paddle
 
-FPS = 200
-WINDOW_WIDTH = 400
-WINDOW_HEIGHT = 300
-LINE_THICKNESS = 10
-PADDLE_SIZE = 50
-PADDLE_OFFSET = 20
+class Config():
+    # Set up the colours
+    BLACK     = (0,0,0)
+    WHITE     = (255,255,255)
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
+    window_width = 400
+    window_height = 300
 
-def draw_arena():
-    DISPLAYSURF.fill((0,0,0))
-    #Draw outline of arena
-    pygame.draw.rect(DISPLAYSURF, WHITE, ((0,0),(WINDOW_WIDTH,WINDOW_HEIGHT)), LINE_THICKNESS*2)
-    #Draw centre line
-    pygame.draw.line(DISPLAYSURF, WHITE, ((WINDOW_WIDTH/2),0),((WINDOW_WIDTH/2),WINDOW_HEIGHT), int(LINE_THICKNESS/4))
+    display_surf = pygame.display.set_mode((window_width,window_height))
+
+    fps_clock = pygame.time.Clock()
+    fps = 40 # Number of frames per second
 
 
-#Draws the paddle
-def draw_paddle(paddle):
-    #Stops paddle moving too low
-    if paddle.bottom > WINDOW_HEIGHT - LINE_THICKNESS:
-        paddle.bottom = WINDOW_HEIGHT - LINE_THICKNESS
-    #Stops paddle moving too high
-    elif paddle.top < LINE_THICKNESS:
-        paddle.top = LINE_THICKNESS
-    #Draws paddle
-    pygame.draw.rect(DISPLAYSURF, WHITE, paddle)
+class Game():
+    def __init__(self, line_thickness=10, speed=5):
+        self.line_thickness = line_thickness
+        self.speed = speed
+        self.score = 0
 
+        # Initiate variable and set starting positions
+        # any future changes made within rectangles
+        ball_x = int(Config.window_width / 2 - self.line_thickness / 2)
+        ball_y = int(Config.window_height / 2 - self.line_thickness / 2)
+        self.ball = Ball(ball_x, ball_y, self.line_thickness,
+                         self.line_thickness, self.speed)
+        self.paddles = {}
+        paddle_height = 50
+        paddle_width = self.line_thickness
+        user_paddle_x = 20
+        computer_paddle_x = Config.window_width - paddle_width - 20
+        self.paddles['user'] = Paddle(user_paddle_x,
+                                      paddle_width, paddle_height)
+        self.paddles['computer'] = AutoPaddle(computer_paddle_x,
+                                              paddle_width, paddle_height,
+                                              self.ball, self.speed)
+        self.scoreboard = Scoreboard(0)
 
-# draws the ball
-def draw_ball(ball):
-    pygame.draw.rect(DISPLAYSURF, WHITE, ball)
+    # Draws the arena the game will be played in.
+    def draw_arena(self):
+        Config.display_surf.fill((0, 0, 0))
+        # Draw outline of arena
+        pygame.draw.rect(Config.display_surf, Config.WHITE,
+                         ((0, 0), (Config.window_width, Config.window_height)),
+                         self.line_thickness * 2)
+        # Draw centre line
+        pygame.draw.line(Config.display_surf, Config.WHITE,
+                         (int(Config.window_width / 2), 0),
+                         (int(Config.window_width / 2), Config.window_height),
+                         int(self.line_thickness / 4))
 
+    def update(self):
+        self.ball.move()
+        self.paddles['computer'].move()
 
-def main():
-    pygame.init()
-    global DISPLAYSURF
+        if self.ball.hit_paddle(self.paddles['computer']):
+            self.ball.bounce('x')
+        elif self.ball.hit_paddle(self.paddles['user']):
+            self.ball.bounce('x')
+            self.score += 1
+        elif self.ball.pass_computer():
+            self.score += 5
+        elif self.ball.pass_player():
+            self.score = 0
 
-    FPSCLOCK = pygame.time.Clock()
-
-    DISPLAYSURF = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-    pygame.display.set_caption('Pong')
-
-    ball_x = WINDOW_WIDTH/2 - LINE_THICKNESS/2
-    ball_y = WINDOW_HEIGHT/2 - LINE_THICKNESS/2
-    playerOnePosition = (WINDOW_HEIGHT - PADDLE_SIZE)/2
-    playerTwoPosition = (WINDOW_HEIGHT - PADDLE_SIZE)/2
-
-    paddle_1 = pygame.Rect(PADDLE_OFFSET, playerOnePosition, LINE_THICKNESS, PADDLE_SIZE)
-    paddle_2 = pygame.Rect(WINDOW_WIDTH - PADDLE_OFFSET - LINE_THICKNESS, playerTwoPosition, LINE_THICKNESS, PADDLE_SIZE)
-    ball = pygame.Rect(ball_x, ball_y, LINE_THICKNESS, LINE_THICKNESS)
-
-    draw_arena()
-    draw_paddle(paddle_1)
-    draw_paddle(paddle_2)
-    draw_ball(ball)
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-
-        pygame.display.update()
-        FPSCLOCK.tick(FPS)
-
-        draw_arena()
-        draw_paddle(paddle_1)
-        draw_paddle(paddle_2)
-        draw_ball(ball)
-
-if __name__=='__main__':
-    main()
-
-
+        self.draw_arena()
+        self.ball.draw()
+        self.paddles['user'].draw()
+        self.paddles['computer'].draw()
+        self.scoreboard.display(self.score)
 
