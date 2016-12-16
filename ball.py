@@ -10,8 +10,8 @@ class Ball(pygame.sprite.Sprite):
         self.w = w
         self.h = h
         self.speed = speed
-        self.dir_x = -1  ## -1 = left 1 = right
-        self.dir_y = -1  ## -1 = up 1 = down
+        self.dir_x = -1  # -1 = left 1 = right
+        self.dir_y = -1  # -1 = up 1 = down
 
         self.rect = pygame.Rect(self.x, self.y, self.w, self.h)
 

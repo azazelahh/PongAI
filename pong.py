@@ -7,7 +7,7 @@ from paddle import Paddle
 from scoreboard import Scoreboard
 
 
-class Game():
+class Game(object):
     def __init__(self, line_thickness=10, speed=5):
         self.line_thickness = line_thickness
         self.speed = speed
