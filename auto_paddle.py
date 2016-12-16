@@ -1,5 +1,6 @@
 from paddle import Paddle
-from pong import Config
+from config import Config
+
 
 class AutoPaddle(Paddle):
     def __init__(self, x, w, h, ball, speed):

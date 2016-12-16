@@ -1,5 +1,6 @@
 import pygame
-from pong import Config
+from config import Config
+
 
 class Paddle(pygame.sprite.Sprite):
     def __init__(self,x,w,h):

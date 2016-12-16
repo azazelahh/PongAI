@@ -1,6 +1,6 @@
 import pygame, sys
 from paddle import Paddle
-from pong import Config
+from config import Config
 
 
 class Ball(pygame.sprite.Sprite):

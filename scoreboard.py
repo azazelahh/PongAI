@@ -1,4 +1,4 @@
-from pong import Config
+from config import Config
 import pygame
 
 

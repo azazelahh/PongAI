@@ -1,19 +1,10 @@
 import pygame, sys
 from pygame.locals import *
+from auto_paddle import AutoPaddle
+from ball import Ball
+from config import Config
 from paddle import Paddle
-
-class Config():
-    # Set up the colours
-    BLACK     = (0,0,0)
-    WHITE     = (255,255,255)
-
-    window_width = 400
-    window_height = 300
-
-    display_surf = pygame.display.set_mode((window_width,window_height))
-
-    fps_clock = pygame.time.Clock()
-    fps = 40 # Number of frames per second
+from scoreboard import Scoreboard
 
 
 class Game():
@@ -73,3 +64,28 @@ class Game():
         self.paddles['computer'].draw()
         self.scoreboard.display(self.score)
 
+
+# Main function
+def main():
+    pygame.init()
+    pygame.display.set_caption('Pong')
+    pygame.mouse.set_visible(0)  # make cursor invisible
+
+    game = Game(speed=4)
+
+    while True:  # main game loop
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            # mouse movement commands
+            elif event.type == MOUSEMOTION:
+                game.paddles['user'].move(event.pos)
+
+        game.update()
+        pygame.display.update()
+        Config.fps_clock.tick(Config.fps)
+
+
+if __name__ == '__main__':
+    main()
